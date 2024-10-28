@@ -113,7 +113,7 @@ func getOrigin(headers map[string]string, remoteAddr *string) string {
 func readBody(bodyReader io.ReadCloser, w http.ResponseWriter) (string, error) {
 	body, err := io.ReadAll(bodyReader)
 	if err != nil {
-		http.Error(w, "An error ocurred while reading the request body", http.StatusInternalServerError)
+		http.Error(w, "An error occurred while reading the request body", http.StatusInternalServerError)
 		ErrorLog.Println(err)
 	}
 	return string(body), err
