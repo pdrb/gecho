@@ -96,7 +96,7 @@ func getOrigin(headers map[string]string, remoteAddr *string) string {
 		origin = strings.Split(xForwardedIps, ",")[0]
 	}
 
-	xRealIp, ok := headers["X-Real-IP"]
+	xRealIp, ok := headers["X-Real-Ip"]
 	if ok {
 		origin = xRealIp
 	}
