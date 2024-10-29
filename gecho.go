@@ -15,7 +15,7 @@ import (
 )
 
 // Version
-const AppVersion = "1.0.0"
+const AppVersion = "1.1.0"
 
 // Usage
 const Usage = `Usage: gecho [options]
@@ -25,6 +25,7 @@ A simple http "echo" server written in Go
 Options:
   -h, --help     Show this help message and exit
   -l, --listen   Listen address (default: ":8090")
+  -t, --timeout  Server timeout in seconds (default: 60)
   -v, --version  Show version and exit
 
 Example: gecho --listen 0.0.0.0:80
@@ -186,12 +187,18 @@ func logRequest(next http.HandlerFunc) http.HandlerFunc {
 func main() {
 	// Parse Args
 	var listenAddr string
+	var timeout int
 	var version bool
 
 	flag.StringVar(&listenAddr, "l", ":8090", "listen address")
 	flag.StringVar(&listenAddr, "listen", ":8090", "listen address")
+
+	flag.IntVar(&timeout, "t", 60, "timeout")
+	flag.IntVar(&timeout, "timeout", 60, "timeout")
+
 	flag.BoolVar(&version, "v", false, "show version")
 	flag.BoolVar(&version, "version", false, "show version")
+
 	flag.Usage = func() { fmt.Print(Usage) }
 	flag.Parse()
 
@@ -201,8 +208,15 @@ func main() {
 		os.Exit(0)
 	}
 
-	// Configure handler and start server
-	fmt.Printf(">>> Starting server at address %v\n", listenAddr)
+	// Configure http handler
 	http.HandleFunc("/", logRequest(mainHandler))
-	log.Fatal(http.ListenAndServe(listenAddr, nil))
+
+	// Configure and start server
+	fmt.Printf(">>> Starting server at address %v\n", listenAddr)
+	srv := &http.Server{
+		Addr:         listenAddr,
+		ReadTimeout:  time.Duration(timeout) * time.Second,
+		WriteTimeout: time.Duration(timeout) * time.Second,
+	}
+	log.Fatal(srv.ListenAndServe())
 }
