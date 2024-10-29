@@ -30,6 +30,7 @@ A simple http "echo" server written in Go
 Options:
   -h, --help     Show this help message and exit
   -l, --listen   Listen address (default: ":8090")
+  -t, --timeout  Server timeout in seconds (default: 60)
   -v, --version  Show version and exit
 
 Example: gecho --listen 0.0.0.0:80
