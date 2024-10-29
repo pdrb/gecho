@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 // Version
@@ -27,10 +29,6 @@ Options:
 
 Example: gecho --listen 0.0.0.0:80
 `
-
-// Loggers
-var InfoLog = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
-var ErrorLog = log.New(os.Stderr, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
 
 // Model http response
 type HTTPResponse struct {
@@ -114,7 +112,7 @@ func readBody(bodyReader io.ReadCloser, w http.ResponseWriter) (string, error) {
 	body, err := io.ReadAll(bodyReader)
 	if err != nil {
 		http.Error(w, "An error occurred while reading the request body", http.StatusInternalServerError)
-		ErrorLog.Println(err)
+		slog.Error("error reading the request body", "err", err)
 	}
 	return string(body), err
 }
@@ -139,7 +137,7 @@ func writeResponse(w http.ResponseWriter, response *HTTPResponse) {
 }
 
 // Handle our http request
-func httpHandler(w http.ResponseWriter, req *http.Request) {
+func mainHandler(w http.ResponseWriter, req *http.Request) {
 	// Parse the request headers
 	headers := parseHeaders(&req.Header)
 
@@ -172,11 +170,17 @@ func httpHandler(w http.ResponseWriter, req *http.Request) {
 		URL:     url,
 	}
 
-	// Log request
-	InfoLog.Printf("%v %v %v", req.Method, req.URL, req.RemoteAddr)
-
 	// Write response to client
 	writeResponse(w, &response)
+}
+
+// Logging middleware
+func logRequest(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		next(w, r)
+		slog.Info("handled request", "method", r.Method, "path", r.URL.Path, "addr", r.RemoteAddr, "elapsed", time.Since(start))
+	}
 }
 
 func main() {
@@ -199,6 +203,6 @@ func main() {
 
 	// Configure handler and start server
 	fmt.Printf(">>> Starting server at address %v\n", listenAddr)
-	http.HandleFunc("/", httpHandler)
+	http.HandleFunc("/", logRequest(mainHandler))
 	log.Fatal(http.ListenAndServe(listenAddr, nil))
 }

@@ -13,7 +13,7 @@ func TestHttpHandler(t *testing.T) {
 	// Simple GET test
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
-	httpHandler(w, req)
+	mainHandler(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status code %v, got %v", http.StatusOK, w.Code)
 	}
@@ -27,7 +27,7 @@ func TestHttpHandler(t *testing.T) {
 	data := []byte(`{"name": "John Doe", "email": "john.doe@example.com"}`)
 	req = httptest.NewRequest(http.MethodPost, "/test?name=john&age=40", bytes.NewBuffer(data))
 	w = httptest.NewRecorder()
-	httpHandler(w, req)
+	mainHandler(w, req)
 	if w.Code != http.StatusOK {
 		t.Errorf("Expected status code %v, got %v", http.StatusOK, w.Code)
 	}
