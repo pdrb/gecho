@@ -76,3 +76,12 @@ Should return a response like:
   "url": "http://localhost:8090/headers?name=John&food=apple&food=banana&age=32"
 }
 ```
+
+Server log:
+
+```text
+$ gecho --listen 127.0.0.1:8090
+
+2024/10/29 22:25:04 INFO starting server address=127.0.0.1:8090 timeout=60 version=1.2.0
+2024/10/29 22:25:07 INFO handled request method=POST path=/headers addr=127.0.0.1:57488 elapsed=95.89µs
+```
