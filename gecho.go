@@ -15,7 +15,7 @@ import (
 )
 
 // Version
-const AppVersion = "1.1.0"
+const AppVersion = "1.2.0"
 
 // Usage
 const Usage = `Usage: gecho [options]
@@ -212,7 +212,7 @@ func main() {
 	http.HandleFunc("/", logRequest(mainHandler))
 
 	// Configure and start server
-	fmt.Printf(">>> Starting server at address %v\n", listenAddr)
+	slog.Info("starting server", "address", listenAddr, "timeout", timeout, "version", AppVersion)
 	srv := &http.Server{
 		Addr:         listenAddr,
 		ReadTimeout:  time.Duration(timeout) * time.Second,
